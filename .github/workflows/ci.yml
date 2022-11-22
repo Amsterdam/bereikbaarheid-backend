@@ -1,0 +1,34 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+
+      - name: Prepare Python env
+        uses: syphar/restore-virtualenv@v1
+        id: cache-virtualenv
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip pip-tools
+          pip-sync requirements/base.txt requirements/production.txt
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+      - name: Lint
+        run: flake8 src
+
+      - name: Check formatting
+        run: black src --check --diff
