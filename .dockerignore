@@ -1,0 +1,7 @@
+__pycache__/
+venv
+
+.dockerignore
+.env*
+!.env.example
+Dockerfile_python_deps

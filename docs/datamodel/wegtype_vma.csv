@@ -1,0 +1,60 @@
+wegtype_int;wegtype_text;filter
+10;autosnelweg 0;FALSE
+11;autosnelweg 1;FALSE
+12;autosnelweg 2;FALSE
+13;autosnelweg 3;FALSE
+14;autosnelweg 4;FALSE
+15;autosnelweg 5;FALSE
+16;autosnelweg 6;FALSE
+17;autosnelweg 7;FALSE
+18;autosnelweg 8;FALSE
+20;autoweg 0;FALSE
+21;autoweg 1;FALSE
+22;autoweg 2;FALSE
+23;autoweg 3;FALSE
+24;autoweg 4;FALSE
+25;autoweg 5;FALSE
+50;etw (bubeko) 0;FALSE
+51;etw (bubeko) 1;FALSE
+52;etw (bubeko) 2;FALSE
+53;etw (bubeko) 3;FALSE
+54;etw (bubeko) 4;FALSE
+151;etw bibeko 1;FALSE
+152;etw bibeko 2;FALSE
+141;fiets;FALSE
+40;gow gem (bubeko) 0;FALSE
+41;gow gem (bubeko) 1;FALSE
+42;gow gem (bubeko) 2;FALSE
+43;gow gem (bubeko) 3;FALSE
+44;gow gem (bubeko) 4;FALSE
+30;gow gesl (bubeko) 0;FALSE
+31;gow gesl (bubeko) 1;FALSE
+32;gow gesl (bubeko) 2;FALSE
+33;gow gesl (bubeko) 3;FALSE
+34;gow gesl (bubeko) 4;FALSE
+35;gow gesl (bubeko) 5;FALSE
+36;gow gesl (bubeko) 6;FALSE
+131;personenautolink 1;FALSE
+132;personenautolink 2;FALSE
+60;stadsontsluitingweg (bibeko) 0;FALSE
+61;stadsontsluitingweg (bibeko) 1;FALSE
+62;stadsontsluitingweg (bibeko) 2;FALSE
+63;stadsontsluitingweg (bibeko) 3;FALSE
+64;stadsontsluitingweg (bibeko) 4;FALSE
+65;stadsontsluitingweg (bibeko) 5;FALSE
+999;TypeItem;FALSE
+81;veerpont;FALSE
+992;voedingslink_venom_vma;FALSE
+121;vrachtlink;FALSE
+70;wijkontsluitingsweg (bibeko) 0;FALSE
+71;wijkontsluitingsweg (bibeko) 1;FALSE
+72;wijkontsluitingsweg (bibeko) 2;FALSE
+73;wijkontsluitingsweg (bibeko) 3;FALSE
+101;BTM1;TRUE
+114;loop en fietsveer;TRUE
+111;loopverbinding;TRUE
+112;loopverbinding_halte;TRUE
+113;loopverbinding_knoop;TRUE
+92;tram;TRUE
+91;trein;TRUE
+991;voedingslink;TRUE

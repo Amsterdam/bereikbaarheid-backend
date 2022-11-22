@@ -1,0 +1,9 @@
+#
+# Define dependencies for production
+#
+
+# constrain to packages defined in base.txt
+-c base.txt
+
+# packages only used in production
+gunicorn

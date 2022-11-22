@@ -1,0 +1,11 @@
+#
+# Define base dependencies
+#
+
+psycopg2-binary
+Flask
+pytz
+webargs
+
+black
+flake8

@@ -1,0 +1,23 @@
+version: '3.6'
+services:
+  backend:
+    build:
+        context: .
+    volumes:
+      - ./src:/app/src
+    environment:
+      - FLASK_ENV=${FLASK_ENV}
+      - FLASK_DEBUG=${FLASK_DEBUG}
+      - APP_SECRET=${APP_SECRET}
+      - FLASK_APP=${FLASK_APP}
+      - DB_NAAM=${DB_NAAM}
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_SSL=${DB_SSL}
+    ports:
+      - "8000:8000"
+networks:
+  default:
+    name: amsterdam-bereikbaarheid

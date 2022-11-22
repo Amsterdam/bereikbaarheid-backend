@@ -1,0 +1,17 @@
+#
+# Based on https://github.com/rhiaro/pip-tools-docker
+#
+
+# The base image is equal to the one compiling the app.
+FROM amsterdam/python
+
+# create and use virtualenv
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+WORKDIR /requirements
+
+RUN set -eux \
+    && pip install --upgrade pip pip-tools
+
+ENTRYPOINT ["pip-compile"]
