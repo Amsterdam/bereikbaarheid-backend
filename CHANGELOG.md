@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+
+## v2.2 - 2022-12-09
 This release makes the code available through Github, and semantic versioning has been adopted.
 
 
