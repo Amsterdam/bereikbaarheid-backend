@@ -182,8 +182,8 @@ def query_db_traffic_signs(
                 st_transform(ST_SetSRID(st_makepoint(rd_x,rd_y),28992),4326)
             ) as geom,
             x.name as straatnaam
-            from bereikbaarheid.borden_mapping m
-            left join bereikbaarheid.netwerk2020_bebording x
+            from bereikbaarheid.bd_verkeersborden m
+            left join bereikbaarheid.out_vma_directed x
             on m.link_gevalideerd = x.id
             where m.link_gevalideerd <> 0
             and LOWER(m.geldigheid) in %(traffic_sign_categories)s

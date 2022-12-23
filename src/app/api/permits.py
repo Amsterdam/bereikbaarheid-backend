@@ -172,13 +172,13 @@ def query_db_permits(
         from (
             select v.id,
             case
-                when v.zone_milieu = false and %(permit_zone_milieu)s = false
+                when v.milieuzone = false and %(permit_zone_milieu)s = false
                     then 'false'
-                when v.zone_milieu = true and %(permit_zone_milieu)s = true
+                when v.milieuzone = true and %(permit_zone_milieu)s = true
                     then 'true'
-                when v.zone_milieu=true and %(permit_zone_milieu)s = false
+                when v.milieuzone=true and %(permit_zone_milieu)s = false
                     then 'false'
-                when v.zone_milieu=false and %(permit_zone_milieu)s = true
+                when v.milieuzone=false and %(permit_zone_milieu)s = true
                     then 'false'
                 else 'onbepaald'
             end as miliezone_boolean,
@@ -219,10 +219,10 @@ def query_db_permits(
                 )
             ) as afstand_in_m,
 
-            ven.venstertijd as venstertijd,
+            ven.dagen as venstertijd,
 
             case
-                when tiles.zone_7_5 like '%%breed opgezette wegen' then 'true'
+                when tiles.zone_zwaar_verkeer_detail like '%%breed opgezette wegen' then 'true'
                 else 'false'
             end as zone_7_5_detail
 
@@ -249,14 +249,14 @@ def query_db_permits(
                     ) as bereikbaar_status_code,
                     g.geom4326 as geom,
                     g.zone_7_5,
-                    g.zone_milieu
-                from bereikbaarheid.netwerk2020_bebording n
+                    g.milieuzone
+                from bereikbaarheid.out_vma_directed n
                 left join (
                     SELECT start_vid as source,
                     end_vid as target,
                     agg_cost FROM pgr_dijkstraCost('
                         select id, source, target, cost
-                        from bereikbaarheid.netwerk2020_bebording
+                        from bereikbaarheid.out_vma_directed
                         where (%(lengte)s < c17 or c17 is null)
                         and (%(breedte)s < c18 or c18 is null)
                         and (%(hoogte)s < c19 or c19 is null)
@@ -284,30 +284,30 @@ def query_db_permits(
                         461470,
                         array(
                             select node
-                            from bereikbaarheid.netwerk2020_bebording_node
+                            from bereikbaarheid.out_vma_node
                         )
                     )
                 ) as routing on n.source=routing.target
 
-                left join bereikbaarheid.netwerk2020_bebording g
+                left join bereikbaarheid.out_vma_directed g
                     on abs(n.id) = g.id
                     where abs(n.id) in (
-                        select id from bereikbaarheid.netwerk2020_bebording
-                        where zone_amsterdam is true and id > 0
+                        select id from bereikbaarheid.out_vma_directed
+                        where binnen_amsterdam is true and id > 0
                     )
                     and n.cost > 0
 
-                group by abs(n.id), g.geom4326,g.zone_7_5, g.zone_milieu
+                group by abs(n.id), g.geom4326,g.zone_7_5, g.milieuzone
                 order by abs(n.id)) v
 
-                left join netwerk.amsterdams_wegenbestand_v5 as ven
+                left join bereikbaarheid.bd_venstertijdwegen as ven
                 on v.id = abs(ven.linknr)
 
-                left join vma400.vma400_20210906_tiles as tiles
+                left join bereikbaarheid.out_vma_undirected as tiles
                     on v.id=tiles.linknr
-                    where id = (
+                    where v.id = (
                         SELECT id
-                        from bereikbaarheid.netwerk2020_bebording a
+                        from bereikbaarheid.out_vma_directed a
                         where id > 0
                         order by st_length(
                             st_transform(
