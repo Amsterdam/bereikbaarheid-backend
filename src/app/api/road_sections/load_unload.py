@@ -19,28 +19,110 @@ def query_db_load_unload():
     :return: object - road sections with load unload data
     """
     db_query = """
+        with load_unload as (
+            select abs(bd.linknr) as linknr_abs,
+            case
+                when vma.linknr > 0
+                    and degrees(
+                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
+                        st_endpoint(st_linemerge(vma.geom)))
+                    ) < 45
+                    then 'noord'
+
+                when vma.linknr > 0
+                    and degrees(
+                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
+                        st_endpoint(st_linemerge(vma.geom)))
+                    ) < 45 + 90
+                    then 'oost'
+
+                when vma.linknr > 0
+                    and degrees(
+                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
+                        st_endpoint(st_linemerge(vma.geom)))
+                    ) < 45 + 180
+                    then 'zuid'
+
+                when vma.linknr > 0
+                    and degrees(
+                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
+                        st_endpoint(st_linemerge(vma.geom)))
+                    ) < 270
+                    then 'west'
+
+                when vma.linknr > 0 then 'noord'
+
+                when vma.linknr < 0
+                    and degrees(
+                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
+                        st_endpoint(st_linemerge(st_reverse(vma.geom))))
+                    ) < 45
+                    then 'noord'
+
+                when vma.linknr < 0
+                    and degrees(
+                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
+                        st_endpoint(st_linemerge(st_reverse(vma.geom))))
+                    ) < 45 + 90
+                    then 'oost'
+
+                when vma.linknr < 0
+                    and degrees(
+                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
+                        st_endpoint(st_linemerge(st_reverse(vma.geom))))
+                    ) < 45 + 180
+                    then 'zuid'
+
+                when vma.linknr < 0
+                    and degrees(
+                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
+                        st_endpoint(st_linemerge(st_reverse(vma.geom))))
+                    ) < 270
+                    then 'west'
+
+                else  'noord'
+
+            end as richting,
+
+            bd.linknr,
+            bd.e_type,
+            bd.laden_lossen,
+            bd.dagen,
+            bd.begin_tijd,
+            bd.eind_tijd,
+            vma.car_network,
+            vma.geom,
+            vma.name
+
+            from bereikbaarheid.bd_venstertijdwegen bd
+
+            left join bereikbaarheid.vma_latest_undirected vma
+                on abs(bd.linknr) = vma.linknr
+
+            order by bd.linknr
+        )
+
         select json_build_object(
-            'geometry', ST_Transform(t1.geom, 4326)::json,
+            'geometry', ST_Transform(load_unload.geom, 4326)::json,
             'properties', json_build_object(
-                'id', t1.linknr,
-                'street_name', t1.name,
+                'id', load_unload.linknr_abs,
+                'street_name', load_unload.name,
                 'load_unload', json_agg(json_build_object(
-                    'category', t2.laden_lossen,
-                    'days', t2.dagen,
-                    'start_time', t2.begin_tijd,
-                    'end_time', t2.eind_tijd
-                ) order by t2.eind_tijd asc)
+                    'road_section_id', load_unload.linknr,
+                    'direction', load_unload.richting,
+                    'additional_info', load_unload.laden_lossen,
+                    'days', load_unload.dagen,
+                    'start_time', load_unload.begin_tijd,
+                    'end_time', load_unload.eind_tijd
+                ) order by load_unload.eind_tijd asc)
             ),
             'type', 'Feature'
         )
-        from bereikbaarheid.vma400_20212201_undirected_test t1
+        from load_unload
 
-        right join bereikbaarheid.ht_venstertijdwegen t2
-            on t1.linknr = t2.linknr
-
-        where t1.geom is not null
-        group by t1.geom, t1.linknr, t1.name
-        order by t1.linknr
+        where load_unload.geom is not null
+        group by load_unload.geom, load_unload.linknr_abs, load_unload.name
+        order by load_unload.linknr_abs
     """
 
     try:
