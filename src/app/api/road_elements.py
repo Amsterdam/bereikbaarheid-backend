@@ -74,7 +74,8 @@ def query_db_road_elements(road_element_id):
             and now() < t3.end_date
 
         where t1.linknr = %(road_element_id)s
-        group by t1.geom, t1.linknr, t1.name, t1.wettelijke_snelheid_actueel, t1.lengte
+        group by t1.geom, t1.linknr, t1.name,
+            t1.wettelijke_snelheid_actueel, t1.lengte
     """
 
     query_params = {"road_element_id": road_element_id}

@@ -222,7 +222,9 @@ def query_db_permits(
             ven.dagen as venstertijd,
 
             case
-                when tiles.zone_zwaar_verkeer_detail like '%%breed opgezette wegen' then 'true'
+                when tiles.zone_zwaar_verkeer_detail
+                    like '%%breed opgezette wegen'
+                    then 'true'
                 else 'false'
             end as zone_7_5_detail
 
