@@ -32,7 +32,7 @@ def query_db_road_elements(road_element_id):
             'properties', json_build_object(
                 'id', t1.linknr,
                 'length_in_m', t1.lengte::int,
-                'max_speed_in_km', t1.wettelijke_snelheid,
+                'max_speed_in_km', t1.wettelijke_snelheid_actueel,
                 'street_name', t1.name,
                 'traffic_counts', case
                     when count(t2) = 0 then '[]'
@@ -64,17 +64,18 @@ def query_db_road_elements(road_element_id):
             ),
             'type', 'Feature'
         )
-        from bereikbaarheid.vma400_20212201_undirected_test t1
+        from bereikbaarheid.out_vma_undirected t1
 
-        left join bereikbaarheid.verkeerstellingen t2
+        left join bereikbaarheid.bd_verkeerstellingen t2
             on t1.linknr = t2.vma_linknr
 
-        left join bereikbaarheid.stremmingen t3
+        left join bereikbaarheid.bd_stremmingen t3
             on t1.linknr = t3.vma_linknr
             and now() < t3.end_date
 
         where t1.linknr = %(road_element_id)s
-        group by t1.geom, t1.linknr, t1.name, t1.wettelijke_snelheid, t1.lengte
+        group by t1.geom, t1.linknr, t1.name,
+            t1.wettelijke_snelheid_actueel, t1.lengte
     """
 
     query_params = {"road_element_id": road_element_id}

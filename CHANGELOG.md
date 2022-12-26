@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - Road section load-unload API endpoint
 
+### Changed
+- Refactored database structure
+
 
 ## [v2.2.1 - 2022-12-13](https://github.com/Amsterdam/bereikbaarheid-backend/compare/v2.2...v2.2.1)
 Updated Python dependencies.

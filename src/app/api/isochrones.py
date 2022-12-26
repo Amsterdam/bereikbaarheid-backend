@@ -55,18 +55,18 @@ def query_db_isochrones(lat, lon):
         from (
             select id,
             (0.5 * cost+source.agg_cost) * 3600 as totalcost
-            from netwerk.netwerk2020_bebording bebording
+            from bereikbaarheid.out_vma_directed bebording
 
             left join (
                 SELECT end_vid, agg_cost
                 FROM pgr_dijkstraCost('
                     select id, source ,target, cost
-                    from netwerk.netwerk2020_bebording',
+                    from bereikbaarheid.out_vma_directed',
                     (
                         select x.node
                         from (
                             select node, geom
-                            from bereikbaarheid.netwerk2020_bebording_node
+                            from bereikbaarheid.out_vma_node
                         ) as x
                         order by st_distance(
                             x.geom,
@@ -76,7 +76,7 @@ def query_db_isochrones(lat, lon):
                     ),
                     array(
                         select node
-                        from bereikbaarheid.netwerk2020_bebording_node
+                        from bereikbaarheid.out_vma_node
                     )
                 )
             ) as source
@@ -84,11 +84,11 @@ def query_db_isochrones(lat, lon):
             where cost > 0
         ) as sub
 
-        left join netwerk.netwerk2020_bebording a
+        left join bereikbaarheid.out_vma_directed a
             on a.id=sub.id
             where abs(a.id) in (
-                select linknr from vma400.vma400_20210622_tiles
-                where zone_amsterdam is true
+                select linknr from bereikbaarheid.out_vma_undirected
+                where binnen_amsterdam is true
             )
 
         group by a.geom, abs(sub.id)"""
