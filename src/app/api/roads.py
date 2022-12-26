@@ -143,48 +143,48 @@ def query_db_prohibitory_roads(
             select v.id,
             case
                 when v.bereikbaar_status_code = 333 then 333
-                when v.zone_milieu = true and v.zone_7_5 = true
+                when v.milieuzone = true and v.zone_7_5 = true
                     and v.bereikbaar_status_code = 222
                     and %(permit_zone_milieu)s = true
                     and %(permit_zone_7_5)s = true
                     then 11111
-                when v.zone_milieu = true and v.zone_7_5 = true
+                when v.milieuzone = true and v.zone_7_5 = true
                     and v.bereikbaar_status_code <> 222
                     and %(permit_zone_milieu)s = true
                     and %(permit_zone_7_5)s = true
                     then 11110
-                when v.zone_milieu = true and v.zone_7_5 = false
+                when v.milieuzone = true and v.zone_7_5 = false
                     and v.bereikbaar_status_code <> 222
                     and %(permit_zone_milieu)s = true
                     then 11100
-                when v.zone_milieu = true and v.zone_7_5 = false
+                when v.milieuzone = true and v.zone_7_5 = false
                     and v.bereikbaar_status_code = 222
                     and %(permit_zone_milieu)s = true
-                    or v.zone_milieu = true and v.zone_7_5 = true
+                    or v.milieuzone = true and v.zone_7_5 = true
                     and v.bereikbaar_status_code = 222
                     and %(permit_zone_milieu)s = true
                     and %(permit_zone_7_5)s = false
                     then 11101
-                when v.zone_milieu = false and v.zone_7_5 = true
+                when v.milieuzone = false and v.zone_7_5 = true
                     and v.bereikbaar_status_code = 222
                     and %(permit_zone_7_5)s = true
-                    or v.zone_milieu = true and v.zone_7_5 = true
+                    or v.milieuzone = true and v.zone_7_5 = true
                     and v.bereikbaar_status_code = 222
                     and %(permit_zone_milieu)s = false
                     and %(permit_zone_7_5)s = true
                     then 11011
-                when v.zone_milieu = false and v.zone_7_5 = true
+                when v.milieuzone = false and v.zone_7_5 = true
                     and v.bereikbaar_status_code <> 222
                     and %(permit_zone_7_5)s = true
                     then 11010
-                when v.zone_milieu = false and v.zone_7_5 = false
+                when v.milieuzone = false and v.zone_7_5 = false
                     and v.bereikbaar_status_code = 222
-                    or v.zone_milieu = true and v.zone_7_5 = true
+                    or v.milieuzone = true and v.zone_7_5 = true
                     and v.bereikbaar_status_code = 222
                     and %(permit_zone_milieu)s = false
                     and %(permit_zone_7_5)s = false
                     or (
-                        v.zone_milieu = true and v.zone_7_5 = false
+                        v.milieuzone = true and v.zone_7_5 = false
                         and v.bereikbaar_status_code = 222
                         and %(permit_zone_milieu)s = false
                     )
@@ -214,14 +214,14 @@ def query_db_prohibitory_roads(
                     ) as bereikbaar_status_code,
                     ST_AsGeoJSON(g.geom4326) as geom,
                     g.zone_7_5,
-                    g.zone_milieu
-                from bereikbaarheid.netwerk2020_bebording n
+                    g.milieuzone
+                from bereikbaarheid.out_vma_directed n
                 left join (
                     SELECT start_vid as source,
                     end_vid as target,
                     agg_cost FROM pgr_dijkstraCost('
                         select id, source, target, cost
-                        from bereikbaarheid.netwerk2020_bebording
+                        from bereikbaarheid.out_vma_directed
                         where cost > 0
                         and (
                             (( -.01 + %(lengte)s ) < c17 or c17 is null)
@@ -251,20 +251,20 @@ def query_db_prohibitory_roads(
                         461470,
                         array(
                             select node
-                            from bereikbaarheid.netwerk2020_bebording_node
+                            from bereikbaarheid.out_vma_node
                         )
                     )
                 ) as routing on n.source = routing.target
 
-                left join bereikbaarheid.netwerk2020_bebording g
+                left join bereikbaarheid.out_vma_directed g
                     on abs(n.id) = g.id
                     where abs(n.id) in (
-                        select id from bereikbaarheid.netwerk2020_bebording
-                        where zone_amsterdam is true and id > 0
+                        select id from bereikbaarheid.out_vma_directed
+                        where binnen_amsterdam is true and id > 0
                     )
                     and n.cost > 0
 
-                group by abs(n.id), g.geom4326, g.zone_7_5, g.zone_milieu
+                group by abs(n.id), g.geom4326, g.zone_7_5, g.milieuzone
                 order by abs(n.id)
             ) v
             where v.bereikbaar_status_code <> 999

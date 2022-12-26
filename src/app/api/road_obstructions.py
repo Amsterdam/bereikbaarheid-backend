@@ -75,7 +75,7 @@ def query_db_road_obstructions(time_from, time_to):
             ),
             'type', 'Feature'
         )
-        from bereikbaarheid.vma400_20212201_undirected_test t1
+        from bereikbaarheid.out_vma_undirected t1
 
         right join (
             select v.id,
@@ -103,7 +103,7 @@ def query_db_road_obstructions(time_from, time_to):
                     strem.kenmerk as kenmerk,
                     strem.werkzaamheden as werkzaamheden,
                     strem.opmerking as opmerking
-                from bereikbaarheid.netwerk2020_bebording netwerk
+                from bereikbaarheid.out_vma_directed netwerk
 
                 -- BLOCK 2: FROM, routing
                 -- finds agg_cost to all nodes
@@ -114,7 +114,7 @@ def query_db_road_obstructions(time_from, time_to):
                         461470,
                         array(
                             select node
-                            from bereikbaarheid.netwerk2020_bebording_node
+                            from bereikbaarheid.out_vma_node
                         ),
                         directed := true -- because all the roads have been doubled to form an undirected network. # noqa: E501
                     )
@@ -126,19 +126,19 @@ def query_db_road_obstructions(time_from, time_to):
                 left join (
                     select vma_linknr, start_date, end_date, url,
                         kenmerk, werkzaamheden, opmerking
-                    from bereikbaarheid.stremmingen
+                    from bereikbaarheid.bd_stremmingen
                 ) as strem
                 on abs(netwerk.id) = strem.vma_linknr
 
                 -- BLOCK 4; FROM, Joins with the geom.
-                left join bereikbaarheid.netwerk2020_bebording g
+                left join bereikbaarheid.out_vma_directed g
                     on abs(netwerk.id) = g.id
 
                 -- BLOCK 5: WHERE.
                 where
                     abs(netwerk.id) in (
-                        select id from bereikbaarheid.netwerk2020_bebording
-                        where zone_amsterdam is true and id > 0
+                        select id from bereikbaarheid.out_vma_directed
+                        where binnen_amsterdam is true and id > 0
                         and id > 0
                     )
                     and netwerk.cost > 0
@@ -202,14 +202,14 @@ def prepare_pgr_dijkstra_cost_query(time_from, time_to):
             select total_network.*
             from (
                 select nw.id, nw.source, nw.target, nw.cost
-                from bereikbaarheid.netwerk2020_bebording nw
+                from bereikbaarheid.out_vma_directed nw
 
                 ) total_network
             where cost > 0
             and
             abs(id) not in (
                 select t1.vma_linknr
-                from bereikbaarheid.stremmingen as t1
+                from bereikbaarheid.bd_stremmingen as t1
                 where start_date <= %(time_to)s
                 and end_date >= %(time_from)s
             )
