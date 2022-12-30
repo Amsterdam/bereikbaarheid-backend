@@ -47,7 +47,7 @@ def query_db_load_unload():
                     and degrees(
                         st_azimuth(st_startpoint(st_linemerge(vma.geom)),
                         st_endpoint(st_linemerge(vma.geom)))
-                    ) < 270
+                    ) < 45 + 270
                     then 'west'
 
                 when vma.linknr > 0 then 'noord'
@@ -77,7 +77,7 @@ def query_db_load_unload():
                     and degrees(
                         st_azimuth(st_startpoint(st_linemerge(vma.geom)),
                         st_endpoint(st_linemerge(st_reverse(vma.geom))))
-                    ) < 270
+                    ) < 45 + 270
                     then 'west'
 
                 else  'noord'
