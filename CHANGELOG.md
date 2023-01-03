@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased](https://github.com/Amsterdam/bereikbaarheid-backend/compare/v2.2.1...HEAD)
 
+### Added
+- Road section load-unload API endpoint
+
 ### Changed
 - Refactored database structure
 

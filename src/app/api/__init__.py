@@ -7,6 +7,7 @@ from . import permits  # noqa: E402
 from . import isochrones  # noqa: E402
 from . import road_elements  # noqa: E402
 from . import road_obstructions  # noqa: E402
+from .road_sections import load_unload  # noqa: E402
 from . import traffic_signs  # noqa: E402
 
 
