@@ -86,7 +86,7 @@ def query_db_load_unload():
 
             bd.linknr,
             bd.e_type,
-            bd.laden_lossen,
+            bd.verkeersbord,
             bd.dagen,
             bd.begin_tijd,
             bd.eind_tijd,
@@ -110,7 +110,7 @@ def query_db_load_unload():
                 'load_unload', json_agg(json_build_object(
                     'road_section_id', load_unload.linknr,
                     'direction', load_unload.richting,
-                    'additional_info', load_unload.laden_lossen,
+                    'additional_info', load_unload.verkeersbord,
                     'days', load_unload.dagen,
                     'start_time', load_unload.begin_tijd,
                     'end_time', load_unload.eind_tijd
