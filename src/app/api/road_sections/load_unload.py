@@ -22,65 +22,81 @@ def query_db_load_unload():
         with load_unload as (
             select abs(bd.linknr) as linknr_abs,
             case
-                when vma.linknr > 0
+                when bd.linknr > 0
                     and degrees(
-                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
-                        st_endpoint(st_linemerge(vma.geom)))
+                        st_azimuth(
+                            st_startpoint(st_linemerge(vma.geom)),
+                            st_endpoint(st_linemerge(vma.geom))
+                        )
                     ) < 45
                     then 'noord'
 
-                when vma.linknr > 0
+                when bd.linknr > 0
                     and degrees(
-                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
-                        st_endpoint(st_linemerge(vma.geom)))
+                        st_azimuth(
+                            st_startpoint(st_linemerge(vma.geom)),
+                            st_endpoint(st_linemerge(vma.geom))
+                        )
                     ) < 45 + 90
                     then 'oost'
 
-                when vma.linknr > 0
+                when bd.linknr > 0
                     and degrees(
-                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
-                        st_endpoint(st_linemerge(vma.geom)))
+                        st_azimuth(
+                            st_startpoint(st_linemerge(vma.geom)),
+                            st_endpoint(st_linemerge(vma.geom))
+                        )
                     ) < 45 + 180
                     then 'zuid'
 
-                when vma.linknr > 0
+                when bd.linknr > 0
                     and degrees(
-                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
-                        st_endpoint(st_linemerge(vma.geom)))
+                        st_azimuth(
+                            st_startpoint(st_linemerge(vma.geom)),
+                            st_endpoint(st_linemerge(vma.geom))
+                        )
                     ) < 45 + 270
                     then 'west'
 
-                when vma.linknr > 0 then 'noord'
+                when bd.linknr > 0 then 'geen'
 
-                when vma.linknr < 0
+                when bd.linknr < 0
                     and degrees(
-                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
-                        st_endpoint(st_linemerge(st_reverse(vma.geom))))
+                        st_azimuth(
+                            st_endpoint(st_linemerge(vma.geom)),
+                            st_startpoint(st_linemerge(vma.geom))
+                        )
                     ) < 45
                     then 'noord'
 
-                when vma.linknr < 0
+                when bd.linknr < 0
                     and degrees(
-                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
-                        st_endpoint(st_linemerge(st_reverse(vma.geom))))
+                        st_azimuth(
+                            st_endpoint(st_linemerge(vma.geom)),
+                            st_startpoint(st_linemerge(vma.geom))
+                        )
                     ) < 45 + 90
                     then 'oost'
 
-                when vma.linknr < 0
+                when bd.linknr < 0
                     and degrees(
-                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
-                        st_endpoint(st_linemerge(st_reverse(vma.geom))))
+                        st_azimuth(
+                            st_endpoint(st_linemerge(vma.geom)),
+                            st_startpoint(st_linemerge(vma.geom))
+                        )
                     ) < 45 + 180
                     then 'zuid'
 
-                when vma.linknr < 0
+                when bd.linknr < 0
                     and degrees(
-                        st_azimuth(st_startpoint(st_linemerge(vma.geom)),
-                        st_endpoint(st_linemerge(st_reverse(vma.geom))))
+                        st_azimuth(
+                            st_endpoint(st_linemerge(vma.geom)),
+                            st_startpoint(st_linemerge(vma.geom))
+                        )
                     ) < 45 + 270
                     then 'west'
 
-                else  'noord'
+                else  'geen'
 
             end as richting,
 
