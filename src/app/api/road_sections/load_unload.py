@@ -58,6 +58,15 @@ def query_db_load_unload():
                     ) < 45 + 270
                     then 'west'
 
+                when bd.linknr > 0
+                    and degrees(
+                        st_azimuth(
+                            st_startpoint(st_linemerge(vma.geom)),
+                            st_endpoint(st_linemerge(vma.geom))
+                        )
+                    ) > 45 + 270
+                    then 'noord'
+
                 when bd.linknr > 0 then 'geen'
 
                 when bd.linknr < 0
@@ -96,6 +105,14 @@ def query_db_load_unload():
                     ) < 45 + 270
                     then 'west'
 
+                when bd.linknr < 0
+                    and degrees(
+                        st_azimuth(
+                            st_endpoint(st_linemerge(vma.geom)),
+                            st_startpoint(st_linemerge(vma.geom))
+                        )
+                    ) > 45 + 270
+                    then 'noord'
                 else  'geen'
 
             end as richting,
