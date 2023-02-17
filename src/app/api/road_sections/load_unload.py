@@ -129,7 +129,7 @@ def query_db_load_unload():
 
             from bereikbaarheid.bd_venstertijdwegen bd
 
-            left join bereikbaarheid.vma_latest_undirected vma
+            left join bereikbaarheid.out_vma_undirected vma
                 on abs(bd.linknr) = vma.linknr
 
             order by bd.linknr
