@@ -248,7 +248,7 @@ def query_db_prohibitory_roads(
                                 or (c10 is true and %(aanhanger)s is false)
                             )
                         )',
-                        461470,
+                        683623,
                         array(
                             select node
                             from bereikbaarheid.out_vma_node
