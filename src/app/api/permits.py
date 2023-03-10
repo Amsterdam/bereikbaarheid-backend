@@ -283,7 +283,7 @@ def query_db_permits(
                                 or (c10 is true and %(aanhanger)s is false)
 
                         )',
-                        683623,
+                        902205,
                         array(
                             select node
                             from bereikbaarheid.out_vma_node
