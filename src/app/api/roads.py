@@ -265,8 +265,9 @@ def query_db_prohibitory_roads(
                     )
                     and n.cost > 0
 
-                group by abs(n.id), g.geom4326, g.zone_7_5, g.milieuzone,g.binnen_amsterdam
-                order by abs(n.id)
+            group by abs(n.id), g.geom4326, g.zone_7_5,
+            g.milieuzone,g.binnen_amsterdam
+            order by abs(n.id)
             ) v
             where v.bereikbaar_status_code <> 999
             and v.binnen_amsterdam is true
