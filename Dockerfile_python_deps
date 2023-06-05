@@ -3,7 +3,7 @@
 #
 
 # The base image is equal to the one compiling the app.
-FROM amsterdam/python
+FROM python:3.11-slim-bullseye
 
 # create and use virtualenv
 RUN python -m venv /opt/venv

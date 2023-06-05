@@ -1,5 +1,5 @@
 # Stage 1 - Compile Python dependencies
-FROM amsterdam/python AS compile-image
+FROM python:3.11-slim-bullseye AS compile-image
 
 # create and use virtualenv
 RUN python -m venv /opt/venv
@@ -13,7 +13,7 @@ RUN pip install --upgrade pip pip-tools
 RUN pip-sync base.txt production.txt
 
 # Stage 2 - Build docker image suitable for deployment
-FROM amsterdam/python:3.7-slim-buster AS runtime-image
+FROM python:3.11-slim-bullseye AS runtime-image
 
 # copy python dependencies
 COPY --from=compile-image /opt/venv /opt/venv
