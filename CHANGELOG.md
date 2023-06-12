@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/Amsterdam/bereikbaarheid-backend/compare/v2.3.1...HEAD)
+## [Unreleased](https://github.com/Amsterdam/bereikbaarheid-backend/compare/v2.3.2...HEAD)
+
+### Added
+- Bollards API endpoint
 
 
 ## [v2.3.2 - 2023-06-05](https://github.com/Amsterdam/bereikbaarheid-backend/compare/v2.3.1...v2.3.2)
