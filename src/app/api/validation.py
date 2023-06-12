@@ -6,6 +6,8 @@ bbox_adam = {
     "lon": {"min": 4.7, "max": 5.1},
 }
 
+days_of_the_week_abbreviated = ["ma", "di", "wo", "do", "vr", "za", "zo"]
+
 # The vehicle parameters should be in sync with validation requirements
 # for client-side forms (defined in javascript)
 vehicle = {
