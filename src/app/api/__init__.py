@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 api = Blueprint("api", __name__)
 
 from . import roads  # noqa: E402  # imports needs to be after Blueprint init
+from . import bollards  # noqa: E402
 from . import permits  # noqa: E402
 from . import isochrones  # noqa: E402
 from . import road_elements  # noqa: E402
