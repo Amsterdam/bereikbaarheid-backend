@@ -133,7 +133,7 @@ def query_db_bollards(day_of_the_week, lat, lon, time_from, time_to):
             left join bereikbaarheid.out_vma_directed g
             on g.id = routing.edge
 
-            left join bereikbaarheid.bd_verzinkbare_palen pp
+            left join bereikbaarheid.bd_verkeerspalen pp
             on abs(routing.edge) = pp.linknr
             where paalnummer is not null
 
@@ -220,7 +220,7 @@ def prepare_pgr_dijkstra_cost_query(day_of_the_week, time_from, time_to):
 
             from bereikbaarheid.out_vma_directed v
 
-            left join bereikbaarheid.bd_verzinkbare_palen p
+            left join bereikbaarheid.bd_verkeerspalen p
             on abs(v.id) = abs(p.linknr)
             where car_network = true
             or abs(id) in (
