@@ -14,7 +14,7 @@ from ..db import get_db, query_db
 
 class BollardsValidationSchema(Schema):
     dayOfTheWeek = fields.String(
-        required=True,
+        required=False,
         validate=validate.OneOf(days_of_the_week_abbreviated),
     )
 
@@ -38,29 +38,51 @@ class BollardsValidationSchema(Schema):
 
     timeFrom = fields.Time(
         format="%H:%M",
-        required=True,
+        required=False,
     )
 
     timeTo = fields.Time(
         format="%H:%M",
-        required=True,
+        required=False,
     )
 
     @validates_schema
     def validate_dates(self, data, **kwargs):
+        if "timeTo" not in data or "timeFrom" not in data:
+            return
+
         if data["timeTo"] < data["timeFrom"]:
-            raise ValidationError("TimeTo must be later than timeFrom")
+            raise ValidationError("timeTo must be later than timeFrom")
+
+    @validates_schema
+    def validate_field_dependencies(self, data, **kwargs):
+        dependent_fields = {
+            "dayOfTheWeek": ["timeTo", "timeFrom"],
+            "timeFrom": ["dayOfTheWeek", "timeTo"],
+            "timeTo": ["dayOfTheWeek", "timeFrom"],
+        }
+
+        for field in dependent_fields:
+            if field in data:
+                missing_fields = [
+                    f for f in dependent_fields[field] if f not in data
+                ]
+
+                if missing_fields:
+                    raise ValidationError(
+                        f"Missing fields: {', '.join(missing_fields)}"
+                    )
 
 
 @api.get("/bollards/")
 @use_args(BollardsValidationSchema(), location="query")
 def bollards(args):
     result = query_db_bollards(
-        args["dayOfTheWeek"],
+        args["dayOfTheWeek"] if "dayOfTheWeek" in args else None,
         args["lat"],
         args["lon"],
-        args["timeFrom"],
-        args["timeTo"],
+        args["timeFrom"] if "timeFrom" in args else None,
+        args["timeTo"] if "timeTo" in args else None,
     )
 
     # https://datatracker.ietf.org/doc/html/rfc7946#section-3.3
@@ -96,11 +118,16 @@ def query_db_bollards(day_of_the_week, lat, lon, time_from, time_to):
     - The provided lat/lon is used to search for the closest target node
     - The closest target node is used for calculating routes
 
-    :param day_of_the_week: string - e.g "di"
-    :param time_from: string - e.g "08:00:00"
-    :param time_to: string - e.g "16:00:00"
-    :param lat: float - the latitude of the location
-    :param lon: float - the longitude of the location
+    :param day_of_the_week: e.g "di"
+    :type day_of_the_week: string or None
+    :param time_from: e.g "08:00:00"
+    :type time_from: string or None
+    :param time_to: e.g "16:00:00"
+    :type time_to: string or None
+    :param lat: the latitude of the location
+    :type lat: float
+    :param lon: the longitude of the location
+    :type lon: float
     :return: object - bollards encountered while routing to a lat/lon
              on a given day, start and end time.
     """
@@ -136,6 +163,14 @@ def query_db_bollards(day_of_the_week, lat, lon, time_from, time_to):
             left join bereikbaarheid.bd_verkeerspalen pp
             on abs(routing.edge) = pp.linknr
             where paalnummer is not null
+            and (
+                (
+                    %(day_of_the_week)s <> ANY(dagen)
+                    or %(day_of_the_week)s is null
+                )
+                and (%(time_from)s <= begin_tijd or %(time_from)s is null)
+                and (%(time_to)s <= eind_tijd or %(time_to)s is null)
+            )
 
             order by seq
         )
@@ -154,14 +189,26 @@ def query_db_bollards(day_of_the_week, lat, lon, time_from, time_to):
             'type', 'Feature'
         )
         from bollards
+
+        -- the "or parameter_name is null" makes sure the bollards are
+        -- returned when the optional parameters are not present
+        where (
+                %(day_of_the_week)s <> ANY(bollards.dagen)
+                or %(day_of_the_week)s is null
+            )
+            and (%(time_from)s <= bollards.begin_tijd or %(time_from)s is null)
+            and (%(time_to)s <= bollards.eind_tijd or %(time_to)s is null)
     """
 
     query_params = {
+        "day_of_the_week": day_of_the_week,
         "pgr_dijkstra_cost_query": prepare_pgr_dijkstra_cost_query(
             day_of_the_week, time_from, time_to
         ),
         "lat": lat,
         "lon": lon,
+        "time_from": time_from,
+        "time_to": time_to,
     }
 
     try:
@@ -198,17 +245,37 @@ def prepare_pgr_dijkstra_cost_query(day_of_the_week, time_from, time_to):
             v.geom,
 
             case
+                -- cars are allowed AND bollard is blocked
                 when car_network = true
-                    and %(day_of_the_week)s <> ANY(dagen)
-                    and begin_tijd <= %(time_from)s
-                    and eind_tijd >= %(time_to)s
+                    and (
+                        %(day_of_the_week)s <> ANY(dagen)
+                        or %(time_from)s <= begin_tijd
+                        or %(time_to)s >= eind_tijd
+                    )
                     then cost * 10000
+
+                -- cars are not allowed AND bollard is blocked
                 when car_network = false
-                    and %(day_of_the_week)s <> ANY(dagen)
-                    and begin_tijd <= %(time_from)s
-                    and eind_tijd >= %(time_to)s
+                    and (
+                        %(day_of_the_week)s <> ANY(dagen)
+                        or %(time_from)s <= begin_tijd
+                        or %(time_to)s >= eind_tijd
+                    )
+                    then 10000 * 10000 * 2
+
+                -- cars are allowed AND bollard is open
+                when car_network = true and p.paalnummer is not null
+                    then cost * 10000
+
+                -- cars are not allowed AND bollard is open
+                when car_network = false and p.paalnummer is not null
                     then 10000 * 10000
-                when car_network = false then 10000 * 10000 * 2
+
+                -- cars are not allowed, road section cost is -1
+                when car_network = false
+                    then 10000 * 10000
+
+                -- cars are allowed AND bollard is open
                 else cost
             end as cost,
 
