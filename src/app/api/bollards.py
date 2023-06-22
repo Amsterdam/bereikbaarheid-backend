@@ -56,22 +56,15 @@ class BollardsValidationSchema(Schema):
 
     @validates_schema
     def validate_field_dependencies(self, data, **kwargs):
-        dependent_fields = {
-            "dayOfTheWeek": ["timeTo", "timeFrom"],
-            "timeFrom": ["dayOfTheWeek", "timeTo"],
-            "timeTo": ["dayOfTheWeek", "timeFrom"],
-        }
+        dependent_fields = ["dayOfTheWeek", "timeFrom", "timeTo"]
 
-        for field in dependent_fields:
-            if field in data:
-                missing_fields = [
-                    f for f in dependent_fields[field] if f not in data
-                ]
+        if any(x in data for x in dependent_fields):
+            missing_fields = [f for f in dependent_fields if f not in data]
 
-                if missing_fields:
-                    raise ValidationError(
-                        f"Missing fields: {', '.join(missing_fields)}"
-                    )
+            if missing_fields:
+                raise ValidationError(
+                    f"Missing fields: {', '.join(missing_fields)}"
+                )
 
 
 @api.get("/bollards/")
